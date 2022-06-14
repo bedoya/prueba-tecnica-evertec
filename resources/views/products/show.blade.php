@@ -1,3 +1,3 @@
 <x-layout>
-    Create
+    Product
 </x-layout>

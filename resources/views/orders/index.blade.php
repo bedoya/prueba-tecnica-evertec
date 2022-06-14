@@ -1,3 +1,3 @@
 <x-layout>
-    Create
+Index
 </x-layout>
