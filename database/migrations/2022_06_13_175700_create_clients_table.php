@@ -10,12 +10,12 @@ return new class extends Migration {
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
             $table->string( 'customer_name' );
-            $table->string( 'customer_email' );
+            $table->string( 'customer_email' )->unique();
             $table->string( 'customer_mobile' );
             $table->foreignId( 'status_id' )->constrained( 'statuses' );
 
@@ -29,7 +29,7 @@ return new class extends Migration {
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('clients');
     }
