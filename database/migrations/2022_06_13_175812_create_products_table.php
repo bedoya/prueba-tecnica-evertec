@@ -15,7 +15,13 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string( 'name' );
+            $table->unsignedDouble( 'price' );
+
+            $table->boolean( 'is_active' )->default( true );
+
+            $table->timestamp( 'created_at' )->useCurrent();
+            $table->timestamp( 'updated_at' )->useCurrent()->useCurrentOnUpdate();
         });
     }
 
