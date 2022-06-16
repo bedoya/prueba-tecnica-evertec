@@ -8,10 +8,9 @@ use Illuminate\Contracts\View\View;
 
 class ProductController extends Controller
 {
-    public function index(SearchRequest $request)
+    public function index(SearchRequest $request): View
     {
         $products = Product::all();
-        return $products;
         return view('products.index', compact('products'));
     }
 
@@ -23,6 +22,6 @@ class ProductController extends Controller
      */
     public function show(Product $product): View
     {
-        return view('products.index');
+        return view('products.show', compact('product'));
     }
 }
