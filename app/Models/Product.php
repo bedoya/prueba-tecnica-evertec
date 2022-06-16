@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property mixed $data
+ */
 class Product extends Model
 {
     use HasFactory, Sluggable;
@@ -14,6 +17,11 @@ class Product extends Model
     protected $fillable = [
         'name',
         'price',
+        'data',
+    ];
+
+    protected $casts = [
+        'data' => 'array',
     ];
 
     /**
@@ -39,5 +47,31 @@ class Product extends Model
     public function orders(): BelongsToMany
     {
         return $this->belongsToMany(Order::class);
+    }
+
+    // Getters
+
+    /**
+     * Sets the slug to be the main object id
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Returns the requested key in the data field for the product
+     *
+     * @param string $key
+     * @param $default
+     *
+     * @return string|array|mixed
+     */
+    public function getData(string $key, $default = null): mixed
+    {
+        return data_get($this->data, $key, $default);
+
     }
 }
