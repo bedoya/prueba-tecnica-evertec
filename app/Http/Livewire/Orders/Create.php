@@ -4,13 +4,18 @@ namespace App\Http\Livewire\Orders;
 
 use App\Models\Client;
 use App\Models\Product;
+use App\Models\Status;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Redirector;
 
 class Create extends Component
 {
     public Collection $products;
+
     public ?string $name = null;
     public ?string $email = null;
     public ?string $phone = null;
@@ -46,29 +51,37 @@ class Create extends Component
     public function productAdded($product_id): void
     {
         $product = Product::find($product_id);
-        $this->products->push($product);
+
+        $this->products->push($product->id);
     }
 
     /**
      * Creates the order and sends the user to complete the process
      *
-     * @return void
+     * @return Redirector|RedirectResponse
      */
-    public function createOrder()
+    public function createOrder(): Redirector|RedirectResponse
     {
         $this->validate();
 
+        $status = Status::where('slug', Str::slug('Created'))->first();
         $client = Client::updateOrCreate(
-            ['customer_name' => $this->email],
-            [
-                'customer_name' => $this->name,
-                'customer_mobile' => $this->phone,
-            ]);
-
-            $order = $client->orders()->create(['total' => 0]);
+            ['customer_email' => $this->email],
+            [ 'customer_name' => $this->name, 'customer_mobile' => $this->phone ]
+        );
+        $order = $client->orders()->create(['total' => 0, 'status_id' => $status->id]);
+        $order->setReference();
 
         foreach ($this->products as $product) {
             $order->addProduct($product);
+        }
+
+        $order->prepareCheckout();
+        if($order->canBeProcessed()){
+            return redirect($order->getProcessUrl());
+        }
+        else{
+            return redirect()->back()->with('message', __('Su transacción no se puede iniciar'));
         }
     }
 
