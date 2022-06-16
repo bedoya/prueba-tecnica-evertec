@@ -19,6 +19,8 @@ use Illuminate\Support\Str;
  * @property int $status_id
  * @property mixed $data
  * @property float $total
+ *
+ * @property Status $status
  */
 class Order extends Model
 {
@@ -33,6 +35,11 @@ class Order extends Model
 
     protected $casts = [
         'data' => 'array',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -115,9 +122,23 @@ class Order extends Model
     }
 
     /**
+     * Sets the status of the order to the given status
+     *
+     * @param string $status
+     *
+     * @return void
+     */
+    public function setStatus(string $status): void
+    {
+        $status = Status::whereSlug(Str::slug($status))->first();
+        $this->status_id = $status->id;
+        $this->save();
+    }
+
+    /**
      * @throws PlacetoPayException
      */
-    public function authorize(): RedirectResponse
+    public function prepareCheckout()
     {
         $placetopay = new PlacetoPay([
             'login' => config('site.login'), // Provided by PlacetoPay
@@ -125,6 +146,7 @@ class Order extends Model
             'baseUrl' => config('site.checkout_url'),
             'timeout' => 10, // (optional) 15 by default
         ]);
+
         $request = [
             'payment' => [
                 'reference' => $this->getReference(),
@@ -139,9 +161,19 @@ class Order extends Model
             'ipAddress' => '127.0.0.1',
             'userAgent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
             'locale' => 'es_CO',
-            'returnUrl' => route('orders.update', ['order' => $this->id]),
+            'returnUrl' => route('orders.show', ['order' => $this->id]),
         ];
-        return $placetopay->request($request);
+
+        $response = $placetopay->request($request);
+        $data = ($response->isSuccessful()) ?
+            [
+                'request_id' => $response->requestId(),
+                'process_url' => $response->processUrl(),
+            ] :
+            [
+                'message' => $response->status()->message(),
+            ];
+        $this->setData('transaction', $data);
     }
 
     // Getters
@@ -175,6 +207,42 @@ class Order extends Model
     public function getData(string $key, $default = null): mixed
     {
         return data_get($this->data, $key, $default);
+    }
 
+    /**
+     * Returns the URL where the user should be redirected to complete the transaction
+     *
+     * @return string
+     */
+    public function getProcessUrl(): string
+    {
+        return $this->getData('transaction.process_url') != null ?
+            $this->getData('transaction.process_url') :
+            route('orders.edit', [$this->id]);
+    }
+
+    // Checkers
+
+    /**
+     * Determines if an order can be sent to checkout
+     *
+     * @return bool
+     */
+    public function canBeProcessed(): bool
+    {
+        return ($this->getData('transaction.process_url') != null) && ($this->hasStatus('Created'));
+    }
+
+    /**
+     * Determines if the status of the order has the given status
+     *
+     * @param string $status
+     *
+     * @return bool
+     */
+    public function hasStatus(string $status = 'Created'): bool
+    {
+        $status = Status::whereSlug(Str::slug($status))->first();
+        return $this->status->id == $status->id;
     }
 }
