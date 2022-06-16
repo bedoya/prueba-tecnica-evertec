@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string( 'name' );
             $table->string( 'slug');
             $table->unsignedDouble( 'price' );
+            $table->json('data')->nullable();
 
             $table->boolean( 'is_active' )->default( true );
 
