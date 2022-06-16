@@ -20,6 +20,7 @@
 <body>
     @include('includes.navbar')
     <div class="container">
+        @include('includes.message')
         <!-- Add your site or application content here -->
         {{ $slot }}
     </div>
