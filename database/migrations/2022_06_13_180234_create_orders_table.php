@@ -14,7 +14,10 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('reference')->nullable();
             $table->foreignId('client_id')->constrained('clients');
+            $table->foreignId( 'status_id' )->constrained( 'statuses' );
+            $table->json('data')->nullable();
             $table->unsignedDouble('total');
 
             $table->timestamp('created_at')->useCurrent();

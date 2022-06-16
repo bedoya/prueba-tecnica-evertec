@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property float $price
  * @property mixed $data
  */
 class Product extends Model
@@ -73,5 +77,10 @@ class Product extends Model
     {
         return data_get($this->data, $key, $default);
 
+    }
+
+    public function getPrice()
+    {
+        return $this->price;
     }
 }

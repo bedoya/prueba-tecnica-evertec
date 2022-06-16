@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string( 'customer_name' );
             $table->string( 'customer_email' )->unique();
             $table->string( 'customer_mobile' );
-            $table->foreignId( 'status_id' )->constrained( 'statuses' );
 
             $table->timestamp( 'created_at' )->useCurrent();
             $table->timestamp( 'updated_at' )->useCurrent()->useCurrentOnUpdate();
