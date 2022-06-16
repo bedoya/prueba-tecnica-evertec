@@ -17,11 +17,12 @@
 </head>
 
 <body>
-
-<!-- Add your site or application content here -->
-{{ $slot }}
-<script src="{{ asset('js/app.js') }}"></script>
-
+    @include('includes.navbar')
+    <div class="container">
+        <!-- Add your site or application content here -->
+        {{ $slot }}
+    </div>
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 
 </html>
