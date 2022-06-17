@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Dnetix\Redirection\Exceptions\PlacetoPayException;
-use Dnetix\Redirection\Message\RedirectResponse;
 use Dnetix\Redirection\PlacetoPay;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +20,8 @@ use Illuminate\Support\Str;
  * @property float $total
  *
  * @property Status $status
+ * @property mixed $client
+ * @property mixed $products
  */
 class Order extends Model
 {
