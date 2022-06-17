@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Orders;
 
 use App\Models\Client;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Status;
 use Illuminate\Contracts\View\View;
@@ -33,12 +34,19 @@ class Create extends Component
     /**
      * Mounts the component
      *
+     * @param Order|null $order
+     *
      * @return void
      */
-    public function mount(): void
+    public function mount(Order $order = null): void
     {
         $this->products = collect();
-
+        if ($order != null) {
+            $this->products = $order->products->pluck('id');
+            $this->name = $order->client->customer_name;
+            $this->email = $order->client->customer_email;
+            $this->phone = $order->client->customer_mobile;
+        }
     }
 
     /**
@@ -67,7 +75,7 @@ class Create extends Component
         $status = Status::where('slug', Str::slug('Created'))->first();
         $client = Client::updateOrCreate(
             ['customer_email' => $this->email],
-            [ 'customer_name' => $this->name, 'customer_mobile' => $this->phone ]
+            ['customer_name' => $this->name, 'customer_mobile' => $this->phone]
         );
         $order = $client->orders()->create(['total' => 0, 'status_id' => $status->id]);
         $order->setReference();
@@ -77,11 +85,10 @@ class Create extends Component
         }
 
         $order->prepareCheckout();
-        if($order->canBeProcessed()){
+        if ($order->canBeProcessed()) {
             return redirect($order->getProcessUrl());
-        }
-        else{
-            return redirect()->back()->with('message', __('Su transacción no se puede iniciar'));
+        } else {
+            return redirect()->route('products.index')->with('message', __('Su transacción no se puede iniciar'));
         }
     }
 
