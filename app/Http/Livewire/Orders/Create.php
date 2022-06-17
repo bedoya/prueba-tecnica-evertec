@@ -41,7 +41,7 @@ class Create extends Component
     public function mount(Order $order = null): void
     {
         $this->products = collect();
-        if ($order != null) {
+        if ($order->id != null) {
             $this->products = $order->products->pluck('id');
             $this->name = $order->client->customer_name;
             $this->email = $order->client->customer_email;
