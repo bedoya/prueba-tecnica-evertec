@@ -23,6 +23,7 @@ Route::prefix('orders')->name('orders.')->group(function(){
     Route::get('/create', [OrderController::class, 'create'])->name('create');
     Route::get('/{order}/edit', [OrderController::class, 'edit'])->name('edit');
     Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+    Route::patch('/{order}', [OrderController::class, 'update'])->name('update');
 });
 
 Route::prefix('products')->name('products.')->group(function(){

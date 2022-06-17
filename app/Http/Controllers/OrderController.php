@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Dnetix\Redirection\Exceptions\PlacetoPayException;
 use Dnetix\Redirection\PlacetoPay;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -36,10 +38,10 @@ class OrderController extends Controller
      * @param Order $order
      * @return View
      */
-    public function show(Order $order): View
+    public function show(Order $order)
     {
-        if($order->hasStatus('Created')){
-            sleep(3);
+        sleep(3);
+        if ($order->hasStatus('Created')) {
             $placetopay = new PlacetoPay([
                 'login' => config('site.login'), // Provided by PlacetoPay
                 'tranKey' => config('site.key'), // Provided by PlacetoPay
@@ -50,6 +52,8 @@ class OrderController extends Controller
             if ($response->isSuccessful()) {
                 if ($response->status()->isApproved()) {
                     $order->setStatus(Str::slug('Payed'));
+                } elseif ($response->status()->isRejected()) {
+                    $order->setStatus(Str::slug('Rejected'));
                 }
             }
         }
@@ -58,12 +62,32 @@ class OrderController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *me
+     *
      * @param Order $order
-     * @return View|RedirectResponse
+     * @return View
      */
-    public function edit(Order $order)
+    public function edit(Order $order): View
     {
         return view('orders.edit', compact('order'));
+    }
+
+    /**
+     * Tries to process again the order that is pending
+     *
+     * @param Order $order
+     *
+     * @return Redirector|RedirectResponse
+     *
+     * @throws PlacetoPayException
+     */
+    public function update(Order $order): Redirector|RedirectResponse
+    {
+        if ($order->hasStatus('Created')) {
+            $order->prepareCheckout();
+            if($order->canBeProcessed()){
+                return redirect($order->getProcessUrl());
+            }
+        }
+        return redirect()->route('products.index')->with('message', __('Su transacción no se puede iniciar'));
     }
 }
