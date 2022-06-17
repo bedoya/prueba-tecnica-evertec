@@ -14,11 +14,9 @@
                 <li class="nav-item">
                     <a class="nav-link @if(Route::is('products.index')) active @endif" href="{{ route('products.index') }}">{{ __('Productos') }}</a>
                 </li>
-                @can('manage-store')
-                    <li class="nav-item">
-                        <a class="nav-link @if(Route::is('orders.index')) active @endif" href="#">{{ __('Todas las órdenes') }}</a>
-                    </li>
-                @endcan
+                <li class="nav-item">
+                    <a class="nav-link @if(Route::is('orders.index')) active @endif" href="{{ route('orders.index') }}">{{ __('Todas las órdenes') }}</a>
+                </li>
             </ul>
         </div>
     </div>

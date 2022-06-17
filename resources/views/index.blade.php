@@ -17,11 +17,6 @@
                 </ul>
             </p>
             <p class="card-text">
-                Para acceder a ella utilice las siguientes credenciales:
-                <span class="d-block font-monospace mt-3">Usuario: <strong>admin</strong></span>
-                <span class="d-block font-monospace">Contraseña: <strong>123456</strong></span>
-            </p>
-            <p class="card-text">
                 <h5>Paquetes utilizados en este programa</h5>
                 <ul class="list-group">
                     <li class="list-group-item">
